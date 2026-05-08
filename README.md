@@ -56,8 +56,8 @@
 ### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/learnhub.git
-cd learnhub
+git clone https://github.com/SaidIsakov/LearnHub.git
+cd Learnhub
 ```
 
 ### 2. Создание виртуального окружения
@@ -211,7 +211,7 @@ learnhub/
 
 ## 🛣️ Roadmap
 
-### ✅ Реализовано (v0.1)
+### 🚧 В разработке (v0.2)
 - [x] Базовая структура проекта
 - [x] Модели Course, CourseMember, Lesson
 - [x] CRUD API для курсов
@@ -233,35 +233,18 @@ learnhub/
 - [ ] Аналитика и отчёты
 - [ ] GraphQL API (опционально)
 
----
-
-## 🤝 Вклад в проект
-
-Проект создан в образовательных целях. Если вы хотите предложить улучшения:
-
-1. Форкните репозиторий
-2. Создайте ветку для вашей фичи (`git checkout -b feature/AmazingFeature`)
-3. Закоммитьте изменения (`git commit -m 'Add some AmazingFeature'`)
-4. Запушьте в ветку (`git push origin feature/AmazingFeature`)
-5. Откройте Pull Request
 
 ---
 
 ## 👤 Автор
 
-**[Ваше имя]**
+**Said**
 
-- GitHub: [@your-username](https://github.com/your-username)
-- LinkedIn: [Your Profile](https://linkedin.com/in/your-profile)
-- Email: your.email@example.com
-
----
-
-## 📄 Лицензия
-
-Этот проект распространяется под лицензией MIT. Подробности в файле [LICENSE](LICENSE).
+- GitHub: [@SaidIsakov](https://github.com/SaidIsakov)
+- Email: pm5581287@gmail.com
 
 ---
+
 
 ## 🙏 Благодарности
 
