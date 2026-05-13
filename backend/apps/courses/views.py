@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
-from apps.courses.serializers import CourseSerializer
+from apps.courses.serializers import CourseSerializer, LessonSerializer
 from django.db.models import Q
-from apps.courses.models import Course
+from apps.courses.models import Course, Lesson
 from apps.courses.permissions import IsCourseInstructor, IsCourseInstructorOrTA, \
                                      IsCourseMember
 from rest_framework.permissions import IsAuthenticated
@@ -27,3 +27,20 @@ class CourseViewSet(ModelViewSet):
     return Course.objects.filter(
       Q(instructor=user) | Q(members__user=user)
     ).distinct()
+
+
+class LessonViewSet(ModelViewSet):
+  serializer_class = LessonSerializer
+
+  def perform_create(self, serializer):
+    course_id = self.request.data.get('course')
+    serializer.save(
+        created_by=self.request.user,
+        course_id=course_id
+    )
+
+  def get_queryset(self):
+    return Lesson.objects.filter(
+        course__members__user=self.request.user
+    ).distinct()
+
