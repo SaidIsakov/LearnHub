@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from apps.courses.models import CourseMember, CourseRole
+from apps.courses.models import CourseMember, CourseRole, Course, Lesson
 
 
 def get_course_membership(user, obj):
@@ -48,3 +48,53 @@ class IsCourseMember(BasePermission):
     membership = get_course_membership(request.user, obj)
 
     return membership is not None
+
+
+class CanCreateLesson(BasePermission):
+  """
+    INSTRUCTOR или TEACHING_ASSISTANT
+  """
+  def has_permission(self, request, view):
+    course_id = request.data.get('course')
+    if not course_id:
+      return False
+
+    course = Course.objects.get(id=course_id)
+
+    membership = get_course_membership(request.user, course)
+    if not membership:
+      return False
+
+    return membership.role in [
+        CourseRole.INSTRUCTOR,
+        CourseRole.TEACHING_ASSISTANT
+    ]
+
+
+class CanEditLesson(BasePermission):
+  """
+    INSTRUCTOR или TEACHING_ASSISTANT
+  """
+  def has_object_permission(self, request, view, obj):
+    membership = get_course_membership(request.user, obj.course)
+    if not membership:
+      return False
+
+    return membership.role in [
+      CourseRole.INSTRUCTOR,
+      CourseRole.TEACHING_ASSISTANT
+    ]
+
+
+class CanDeleteLesson(BasePermission):
+  """
+    INSTRUCTOR
+  """
+  def has_object_permission(self, request, view, obj):
+    membership = get_course_membership(request.user, obj.course)
+    if not membership:
+      return False
+
+    return membership.role in [
+      CourseRole.INSTRUCTOR,
+    ]

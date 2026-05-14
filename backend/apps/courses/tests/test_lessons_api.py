@@ -14,7 +14,7 @@ def test_lesson_create(create_user, course, create_api_client):
   member = CourseMember.objects.create(
       user=misha,
       course=course,
-      role=CourseRole.STUDENT
+      role=CourseRole.TEACHING_ASSISTANT
   )
 
   data = {
@@ -27,6 +27,7 @@ def test_lesson_create(create_user, course, create_api_client):
 
   response = client.post(url, data, format='json')
 
+  assert response.status_code == status.HTTP_201_CREATED
   assert response.data['title'] == 'Test_lesson'
   assert response.data['course'] == course.id
 

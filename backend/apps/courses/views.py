@@ -3,8 +3,8 @@ from rest_framework.viewsets import ModelViewSet
 from apps.courses.serializers import CourseSerializer, LessonSerializer
 from django.db.models import Q
 from apps.courses.models import Course, Lesson
-from apps.courses.permissions import IsCourseInstructor, IsCourseInstructorOrTA, \
-                                     IsCourseMember
+from apps.courses.permissions import IsCourseInstructor, \
+                  IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson
 from rest_framework.permissions import IsAuthenticated
 
 class CourseViewSet(ModelViewSet):
@@ -44,3 +44,12 @@ class LessonViewSet(ModelViewSet):
         course__members__user=self.request.user
     ).distinct()
 
+  def get_permissions(self):
+    if self.action == 'create':
+      return [CanCreateLesson()]
+    if self.action in ['update', 'partial_update']:
+      return [CanEditLesson()]
+    if self.action == 'destroy':
+      return [CanDeleteLesson()]
+    if self.action in ['list', 'retrieve']:
+      return [IsCourseMember()]
