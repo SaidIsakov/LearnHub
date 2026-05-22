@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
-from apps.courses.serializers import CourseSerializer, LessonSerializer
+from apps.courses.serializers import CourseSerializer, LessonSerializer, \
+                                     CourseMemberSerializer
 from django.db.models import Q
-from apps.courses.models import Course, Lesson
+from apps.courses.models import Course, Lesson, CourseMember
 from apps.courses.permissions import IsCourseInstructor, \
-                  IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson
+                  IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson, CanAddCourseMember, CanDeleteCourseMember
 from rest_framework.permissions import IsAuthenticated
 
 class CourseViewSet(ModelViewSet):
@@ -52,4 +53,27 @@ class LessonViewSet(ModelViewSet):
     if self.action == 'destroy':
       return [CanDeleteLesson()]
     if self.action in ['list', 'retrieve']:
+      return [IsCourseMember()]
+
+
+class CourseMemberViewSet(ModelViewSet):
+  serializer_class = CourseMemberSerializer
+  def perform_create(self, serializer):
+    course_id = self.request.data.get('course')
+    serializer.save(
+        invited_by=self.request.user,
+        course_id=course_id
+    )
+
+  def get_queryset(self):
+    return CourseMember.objects.filter(
+        course__members__user = self.request.user
+    ).distinct()
+
+  def get_permissions(self):
+    if self.action == 'create':
+      return [CanAddCourseMember()]
+    if self.action == 'destroy':
+      return [CanDeleteCourseMember()]
+    else:
       return [IsCourseMember()]

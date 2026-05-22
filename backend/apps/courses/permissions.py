@@ -98,3 +98,39 @@ class CanDeleteLesson(BasePermission):
     return membership.role in [
       CourseRole.INSTRUCTOR,
     ]
+
+
+class CanAddCourseMember(BasePermission):
+  """
+    INSTRUCTOR
+    TA
+  """
+  def has_permission(self, request, view):
+    course_id = request.data.get('course')
+    if not course_id:
+      return False
+
+    course = Course.objects.get(id=course_id)
+
+    membership = get_course_membership(request.user, course)
+    if not membership:
+      return False
+
+    return membership.role in [
+        CourseRole.INSTRUCTOR,
+        CourseRole.TEACHING_ASSISTANT
+    ]
+
+
+class CanDeleteCourseMember(BasePermission):
+  """
+    INSTRUCTOR
+  """
+  def has_object_permission(self, request, view, obj):
+    membership = get_course_membership(request.user, obj.course)
+    if not membership:
+      return False
+
+    return membership.role in [
+      CourseRole.INSTRUCTOR,
+    ]
