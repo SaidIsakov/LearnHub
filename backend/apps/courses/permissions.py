@@ -45,8 +45,11 @@ class IsCourseMember(BasePermission):
     Любой участник курса
   """
   def has_object_permission(self, request, view, obj):
-    membership = get_course_membership(request.user, obj)
-
+    if isinstance(obj, Course):
+      course = obj
+    else:
+      course = obj.course
+    membership = get_course_membership(request.user, course)
     return membership is not None
 
 

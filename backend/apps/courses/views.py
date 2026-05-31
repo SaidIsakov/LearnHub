@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from apps.courses.serializers import CourseSerializer, LessonSerializer, \
                                      CourseMemberSerializer
 from django.db.models import Q
-from apps.courses.models import Course, Lesson, CourseMember
+from apps.courses.models import Course, Lesson, CourseMember, CourseRole
 from apps.courses.permissions import IsCourseInstructor, \
                   IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson, CanAddCourseMember, CanDeleteCourseMember
 from rest_framework.permissions import IsAuthenticated
@@ -13,7 +13,14 @@ class CourseViewSet(ModelViewSet):
   pagination_class = None
 
   def perform_create(self, serializer):
-    serializer.save(instructor=self.request.user)
+    course = serializer.save(instructor=self.request.user)
+
+    CourseMember.objects.create(
+        user=self.request.user,
+        course=course,
+        role=CourseRole.INSTRUCTOR,
+        is_active=True
+    )
 
   def get_permissions(self):
     if self.action in ['update', 'partial_update', 'destroy']:
