@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     # Apps
     'apps.courses',
     'apps.users',
+    'apps.assignments',
 
     # Third-party
     'rest_framework',
