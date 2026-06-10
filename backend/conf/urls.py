@@ -2,11 +2,13 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from apps.courses.urls import router as course_router
+from apps.assignments.urls import router as assignment_router
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 router = routers.DefaultRouter()
 
 router.registry.extend(course_router.registry)
+router.registry.extend(assignment_router.registry)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
