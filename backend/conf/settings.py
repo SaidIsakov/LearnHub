@@ -1,8 +1,9 @@
 from pathlib import Path
 from decouple import config
+from datetime import timedelta
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 
 
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_spectacular',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -119,6 +121,7 @@ AUTH_USER_MODEL = 'users.User'
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -133,6 +136,25 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+
+SIMPLE_JWT = {
+    # Access токен живёт 15 минут
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+
+    # Refresh токен живёт 7 дней
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+
+    # Автоматически обновлять refresh токен
+    'ROTATE_REFRESH_TOKENS': True,
+
+    # Алгоритм подписи
+    'ALGORITHM': 'HS256',
+
+    # Тип токена в заголовке
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 
 # drf-spectacular
 SPECTACULAR_SETTINGS = {

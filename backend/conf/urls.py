@@ -4,6 +4,11 @@ from rest_framework import routers
 from apps.courses.urls import router as course_router
 from apps.assignments.urls import router as assignment_router
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 router = routers.DefaultRouter()
 
@@ -16,6 +21,10 @@ urlpatterns = [
 
     #drf-spectacular
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+
+    #JWT
+    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Optional UI:
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
