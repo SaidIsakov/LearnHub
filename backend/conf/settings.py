@@ -162,4 +162,15 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Система управления онлайн-обучением',
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
+
+    'SECURITY': [{'BearerAuth': []}],
+    'COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    },
 }
