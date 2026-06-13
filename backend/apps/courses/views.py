@@ -7,6 +7,9 @@ from apps.courses.models import Course, Lesson, CourseMember, CourseRole
 from apps.courses.permissions import IsCourseInstructor, \
                   IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson, CanAddCourseMember, CanDeleteCourseMember
 from rest_framework.permissions import IsAuthenticated
+from apps.courses.tasks import notify_new_student
+
+
 
 class CourseViewSet(ModelViewSet):
   serializer_class = CourseSerializer
@@ -47,6 +50,7 @@ class LessonViewSet(ModelViewSet):
         course_id=course_id
     )
 
+
   def get_queryset(self):
     return Lesson.objects.filter(
         course__members__user=self.request.user
@@ -65,12 +69,14 @@ class LessonViewSet(ModelViewSet):
 
 class CourseMemberViewSet(ModelViewSet):
   serializer_class = CourseMemberSerializer
+
   def perform_create(self, serializer):
     course_id = self.request.data.get('course')
     serializer.save(
         invited_by=self.request.user,
         course_id=course_id
     )
+    notify_new_student.delay(course_id, self.request.user.id)
 
   def get_queryset(self):
     return CourseMember.objects.filter(
