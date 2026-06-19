@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+from celery.schedules import crontab
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     'rest_framework_simplejwt',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -183,3 +185,9 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 
+CELERY_BEAT_SCHEDULE = {
+    'название-задачи': {
+        'task': 'apps.courses.tasks.remind_about_deadline',
+        'schedule': crontab(hour=9, minute=0)
+    }
+}
