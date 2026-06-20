@@ -8,12 +8,22 @@ from apps.courses.permissions import IsCourseInstructor, \
                   IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson, CanAddCourseMember, CanDeleteCourseMember
 from rest_framework.permissions import IsAuthenticated
 from apps.courses.tasks import notify_new_student
+from .filters import CourseFilter, LessonFilter
+from drf_spectacular.utils import extend_schema_view, extend_schema
 
 
-
+@extend_schema_view(
+    list=extend_schema(tags=['courses']),
+    create=extend_schema(tags=['courses']),
+    retrieve=extend_schema(tags=['courses']),
+    update=extend_schema(tags=['courses']),
+    partial_update=extend_schema(tags=['courses']),
+    destroy=extend_schema(tags=['courses']),
+)
 class CourseViewSet(ModelViewSet):
   serializer_class = CourseSerializer
   pagination_class = None
+  filterset_class = CourseFilter
 
   def perform_create(self, serializer):
     course = serializer.save(instructor=self.request.user)
@@ -40,8 +50,17 @@ class CourseViewSet(ModelViewSet):
     ).distinct()
 
 
+@extend_schema_view(
+    list=extend_schema(tags=['lessons']),
+    create=extend_schema(tags=['lessons']),
+    retrieve=extend_schema(tags=['lessons']),
+    update=extend_schema(tags=['lessons']),
+    partial_update=extend_schema(tags=['lessons']),
+    destroy=extend_schema(tags=['lessons']),
+)
 class LessonViewSet(ModelViewSet):
   serializer_class = LessonSerializer
+  filterset_class = LessonFilter
 
   def perform_create(self, serializer):
     course_id = self.request.data.get('course')
@@ -67,6 +86,14 @@ class LessonViewSet(ModelViewSet):
       return [IsCourseMember()]
 
 
+@extend_schema_view(
+    list=extend_schema(tags=['members']),
+    create=extend_schema(tags=['members']),
+    retrieve=extend_schema(tags=['members']),
+    update=extend_schema(tags=['members']),
+    partial_update=extend_schema(tags=['members']),
+    destroy=extend_schema(tags=['members']),
+)
 class CourseMemberViewSet(ModelViewSet):
   serializer_class = CourseMemberSerializer
 

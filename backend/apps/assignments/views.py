@@ -6,9 +6,17 @@ from apps.assignments.permissions import CanCreateAssignment, CanReviewSubmissio
 from apps.courses.models import CourseMember, CourseRole
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
+from drf_spectacular.utils import extend_schema_view, extend_schema
 
 
-
+@extend_schema_view(
+    list=extend_schema(tags=['assignments']),
+    create=extend_schema(tags=['assignments']),
+    retrieve=extend_schema(tags=['assignments']),
+    update=extend_schema(tags=['assignments']),
+    partial_update=extend_schema(tags=['assignments']),
+    destroy=extend_schema(tags=['assignments']),
+)
 class AssignmentViewSet(ModelViewSet):
   serializer_class = AssignmentSerializer
 
@@ -32,6 +40,14 @@ class AssignmentViewSet(ModelViewSet):
 
 
 
+@extend_schema_view(
+    list=extend_schema(tags=['submissions']),
+    create=extend_schema(tags=['submissions']),
+    retrieve=extend_schema(tags=['submissions']),
+    update=extend_schema(tags=['submissions']),
+    partial_update=extend_schema(tags=['submissions']),
+    destroy=extend_schema(tags=['submissions']),
+)
 class SubmissionViewSet(ModelViewSet):
   serializer_class = SubmissionSerializer
 
