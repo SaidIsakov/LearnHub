@@ -55,3 +55,8 @@ def create_api_client(db):
     client.force_login(user)
     return client
   return _client_for
+
+
+@pytest.fixture(autouse=True)
+def celery_eager_mode(settings):
+  settings.CELERY_TASK_ALWAYS_EAGER = True
