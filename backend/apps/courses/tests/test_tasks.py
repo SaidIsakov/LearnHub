@@ -5,12 +5,18 @@ from apps.assignments.models import Assignment
 from datetime import timedelta
 from django.utils import timezone
 
+
+
+
 @pytest.mark.django_db
-def test_notify_new_student(user, course, create_user):
+def test_notify_new_student(user, course, create_user, monkeypatch):
   """
     Проверяем что задача notify_new_student
     выполняется без ошибок
   """
+
+  monkeypatch.setattr('apps.courses.tasks.send_message', lambda chat_id, text: None)
+
   misha = create_user('Misha')
   alex = create_user('Alex')
 
@@ -30,11 +36,14 @@ def test_notify_new_student(user, course, create_user):
 
 
 @pytest.mark.django_db
-def test_remind_about_deadline(create_user, course):
+def test_remind_about_deadline(create_user, course, monkeypatch):
   """
     Проверяем что задача remind_about_deadline
     находит задания с дедлайном и отправляет напоминания
   """
+
+  monkeypatch.setattr('apps.courses.tasks.send_message', lambda chat_id, text: None)
+
   alex = create_user('Alex')
   misha = create_user('Misha')
   instructor = CourseMember.objects.create(
