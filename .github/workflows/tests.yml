@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare .env file
+        run: cp .env.example .env
+
+      - name: Build app
+        run: docker-compose build app
+
+      - name: Start db
+        run: docker-compose up -d db
+
+      - name: Run tests
+        run: docker-compose run --rm app pytest
+
+      - name: Stop containers
+        run: docker-compose down -v
