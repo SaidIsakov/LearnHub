@@ -23,13 +23,6 @@ jobs:
       - name: Start db
         run: docker compose up -d postgres
 
-      - name: Wait for postgres
-        run: |
-          until docker compose exec -T postgres pg_isready; do
-            echo "Waiting for postgres..."
-            sleep 2
-          done
-
       - name: Run tests
         run: docker compose run --rm app pytest
 
