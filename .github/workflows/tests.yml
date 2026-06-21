@@ -23,6 +23,12 @@ jobs:
       - name: Start db
         run: docker compose up -d postgres
 
+      - name: Check postgres logs
+        run: |
+          sleep 5
+          docker compose ps
+          docker compose logs postgres
+
       - name: Run tests
         run: docker compose run --rm app pytest
 
