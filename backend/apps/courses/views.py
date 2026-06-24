@@ -12,7 +12,7 @@ from .filters import CourseFilter, LessonFilter
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from django.core.cache import cache
 from rest_framework.response import Response
-from apps.courses.cache import invalidate_courses_cache
+from apps.courses.cache import invalidate_courses_cache, invalidate_lessons_cache
 
 
 @extend_schema_view(
@@ -86,6 +86,17 @@ class LessonViewSet(ModelViewSet):
   serializer_class = LessonSerializer
   filterset_class = LessonFilter
 
+  def list(self, request, *args, **kwargs):
+    cache_key = f'lessons_list_user_{request.user.id}_{request.GET.urlencode()}'
+    cache_data = cache.get(cache_key)
+
+    if cache_data is not None:
+      return Response(cache_data)
+
+    response = super().list(request, *args, **kwargs)
+    cache.set(cache_key, response.data, timeout=60*5)
+    return response
+
   def perform_create(self, serializer):
     course_id = self.request.data.get('course')
     serializer.save(
@@ -93,6 +104,15 @@ class LessonViewSet(ModelViewSet):
         course_id=course_id
     )
 
+    invalidate_lessons_cache()
+
+  def perform_update(self, serializer):
+    super().perform_update(serializer)
+    invalidate_lessons_cache()
+
+  def perform_destroy(self, instance):
+    super().perform_destroy(instance)
+    invalidate_lessons_cache()
 
   def get_queryset(self):
     return Lesson.objects.filter(
