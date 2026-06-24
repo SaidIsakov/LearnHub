@@ -188,7 +188,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
     'название-задачи': {
         'task': 'apps.courses.tasks.remind_about_deadline',
-        'schedule': crontab(hour=9, minute=0)
+        'schedule': crontab(minute=2)
     }
 }
 
@@ -198,4 +198,37 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://redis:6379/1",
     }
+}
+
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+
+    'loggers': {
+        'apps': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+
+    'httpx': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
 }
