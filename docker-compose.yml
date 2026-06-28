@@ -30,6 +30,8 @@ services:
       - redis
     environment:
       DB_HOST: postgres
+    volumes:
+      - ./backend:/app
 
   celery_worker:
     build: .
