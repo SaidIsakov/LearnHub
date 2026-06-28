@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from apps.courses.serializers import CourseSerializer, LessonSerializer, \
                                      CourseMemberSerializer
 from django.db.models import Q
-from apps.courses.models import Course, Lesson, CourseMember, CourseRole
+from apps.courses.models import Course, Lesson, CourseMember, CourseRole, ChatMessage
 from apps.courses.permissions import IsCourseInstructor, \
                   IsCourseInstructorOrTA, IsCourseMember, CanCreateLesson, CanDeleteLesson, CanEditLesson, CanAddCourseMember, CanDeleteCourseMember
 from rest_framework.permissions import IsAuthenticated
@@ -13,6 +13,8 @@ from drf_spectacular.utils import extend_schema_view, extend_schema
 from django.core.cache import cache
 from rest_framework.response import Response
 from apps.courses.cache import invalidate_courses_cache, invalidate_lessons_cache
+from rest_framework.decorators import action
+from apps.courses.ai_assistant import ask_ai_about_lesson
 
 
 @extend_schema_view(
@@ -81,6 +83,7 @@ class CourseViewSet(ModelViewSet):
     update=extend_schema(tags=['lessons']),
     partial_update=extend_schema(tags=['lessons']),
     destroy=extend_schema(tags=['lessons']),
+    ask=extend_schema(tags=['lessons']),
 )
 class LessonViewSet(ModelViewSet):
   serializer_class = LessonSerializer
@@ -126,8 +129,27 @@ class LessonViewSet(ModelViewSet):
       return [CanEditLesson()]
     if self.action == 'destroy':
       return [CanDeleteLesson()]
-    if self.action in ['list', 'retrieve']:
+    if self.action in ['list', 'retrieve', 'ask']:
       return [IsCourseMember()]
+
+  @action(detail=True, methods=['POST'])
+  def ask(self, request, pk=None):
+    lesson = self.get_object()
+    question = request.data.get('question')
+
+    if not question:
+      return Response({'error': 'Question is required'}, status=400)
+
+    answer = ask_ai_about_lesson(lesson.content, question)
+
+    ChatMessage.objects.create(
+        lesson=lesson,
+        user=request.user,
+        question=question,
+        answer=answer
+    )
+
+    return Response({'answer': answer})
 
 
 @extend_schema_view(
