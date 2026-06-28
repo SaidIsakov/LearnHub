@@ -23,6 +23,9 @@ jobs:
       - name: Start db
         run: docker compose up -d postgres
 
+      - name: Start app
+        run: docker compose up -d app
+
       - name: Apply database migrations
         run: |
                 docker compose exec app python manage.py makemigrations
