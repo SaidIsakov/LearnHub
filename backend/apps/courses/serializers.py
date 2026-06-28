@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.courses.models import Course, Lesson, CourseMember
+from apps.courses.models import Course, Lesson, CourseMember, ChatMessage
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -25,4 +25,13 @@ class CourseMemberSerializer(serializers.ModelSerializer):
     model = CourseMember
     fields = ['id', 'user', 'course', 'role', 'enrolled_at', 'is_active',
         'invited_by']
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+  lesson = serializers.PrimaryKeyRelatedField(read_only=True)
+  answer = serializers.ReadOnlyField()
+
+  class Meta:
+    model = ChatMessage
+    fields = ['id', 'lesson', 'question', 'answer', 'created_at']
 
