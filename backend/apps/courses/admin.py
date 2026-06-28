@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.courses.models import Course, CourseMember, Lesson
+from apps.courses.models import Course, CourseMember, Lesson, ChatMessage
 
 
 @admin.register(Course)
@@ -20,3 +20,10 @@ class LessonAdmin(admin.ModelAdmin):
   list_filter = ['is_published', 'course']
   search_fields = ['title']
   ordering = ['order']
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+  list_display = ['user', 'question']
+  list_filter = ['lesson']
+

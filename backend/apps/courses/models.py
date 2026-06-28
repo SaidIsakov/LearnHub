@@ -105,3 +105,26 @@ class Lesson(models.Model):
 
   def __str__(self):
       return self.title
+
+
+class ChatMessage(models.Model):
+  lesson = models.ForeignKey(
+      Lesson,
+      on_delete=models.CASCADE,
+      related_name='chat_messages'
+  )
+  user = models.ForeignKey(
+      settings.AUTH_USER_MODEL,
+      on_delete=models.CASCADE,
+      related_name='chat_messages'
+  )
+  question = models.TextField()
+  answer = models.TextField()
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+      return self.question[:50]
+
+  class Meta:
+    ordering = ['-created_at']
+
