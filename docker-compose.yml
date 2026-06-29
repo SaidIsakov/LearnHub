@@ -44,6 +44,8 @@ services:
       - redis
     environment:
       DB_HOST: postgres
+    volumes:
+      - ./backend:/app
 
   celery_beat:
     build: .
@@ -56,6 +58,8 @@ services:
       - redis
     environment:
       DB_HOST: postgres
+    volumes:
+      - ./backend:/app
 
 volumes:
   postgres_data:

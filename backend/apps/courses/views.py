@@ -165,11 +165,12 @@ class CourseMemberViewSet(ModelViewSet):
 
   def perform_create(self, serializer):
     course_id = self.request.data.get('course')
+    user_id = self.request.data.get('user')
     serializer.save(
         invited_by=self.request.user,
         course_id=course_id
     )
-    notify_new_student.delay(course_id, self.request.user.id)
+    notify_new_student.delay(course_id, user_id)
 
   def get_queryset(self):
     return CourseMember.objects.filter(

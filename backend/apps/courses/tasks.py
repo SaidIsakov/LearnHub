@@ -2,7 +2,6 @@ from celery import shared_task
 from apps.courses.models import Course, CourseRole, CourseMember
 from apps.users.models import User
 from apps.courses.telegram import send_message
-from decouple import config
 from apps.assignments.models import Assignment
 from django.utils import timezone
 from datetime import timedelta
@@ -10,8 +9,6 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-
-CHAT_ID = config('TELEGRAM_CHAT_ID')
 
 
 @shared_task
@@ -28,10 +25,14 @@ def notify_new_student(course_id, student_id):
       f'Студент: {student.username}'
   )
 
-  send_message(
-    chat_id=CHAT_ID,
-    text=message
-  )
+  if instructor.user.telegram_id:
+    send_message(
+      chat_id=instructor.user.telegram_id,
+      text=message
+    )
+  else:
+    logger.warning(f"Instructor {instructor.user.username} has no telegram_id, skipping notification")
+
   logger.info(f"The message was sent to the instructor about {student.username} in course {course.title}")
 
 @shared_task
@@ -58,8 +59,11 @@ def remind_about_deadline():
   message = '📚 Дедлайн через 24 часа:\n' + '\n'.join(list(assignments))
 
   for student in students:
-    send_message(
-        chat_id=CHAT_ID,
-        text=message
-    )
+    if student.user.telegram_id:
+      send_message(
+          chat_id=student.user.telegram_id,
+          text=message
+      )
+    else:
+      logger.warning(f"Student {student.user.username} has no telegram_id, skipping notification about deadlines")
   logger.info(f'Deadline reminders have been sent')

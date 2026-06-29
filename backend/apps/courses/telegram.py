@@ -4,7 +4,6 @@ from decouple import config
 
 
 BOT_TOKEN = config('TELEGRAM_BOT_TOKEN')
-CHAT_ID = config('TELEGRAM_CHAT_ID')
 
 
 async def _send_message(chat_id: str, text: str) -> None:
