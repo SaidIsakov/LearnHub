@@ -5,7 +5,7 @@ from rest_framework import status
 
 
 @pytest.mark.django_db
-def test_ai_answer_quetion(create_user, create_api_client,  monkeypatch, course):
+def test_ai_answer_quetion(create_user, create_api_client,  monkeypatch, course, create_student, create_instructor, lesson):
   """
     Успешный вопрос к AI
   """
@@ -13,22 +13,9 @@ def test_ai_answer_quetion(create_user, create_api_client,  monkeypatch, course)
 
   alex = create_user('Alex')
   misha = create_user('Misha')
-  lesson = Lesson.objects.create(
-      title='Test_lesson',
-      content='Test_content',
-      course=course,
-      created_by = alex
-  )
-  instructor = CourseMember.objects.create(
-      course=course,
-      user=alex,
-      role=CourseRole.INSTRUCTOR
-  )
-  student = CourseMember.objects.create(
-    course=course,
-    user=misha,
-    role=CourseRole.STUDENT
-  )
+
+  instructor = create_instructor(alex, course)
+  student = create_student(misha, course)
 
   url = f'/api/lessons/{lesson.id}/ask/'
   client = create_api_client(misha)
@@ -38,7 +25,7 @@ def test_ai_answer_quetion(create_user, create_api_client,  monkeypatch, course)
 
 
 @pytest.mark.django_db
-def test_quetion_without_text(create_user, create_api_client,  monkeypatch, course):
+def test_quetion_without_text(create_user, create_api_client,  monkeypatch, course, create_student, create_instructor, lesson):
   """
     Вопрос без текста (валидация)
   """
@@ -47,22 +34,9 @@ def test_quetion_without_text(create_user, create_api_client,  monkeypatch, cour
 
   alex = create_user('Alex')
   misha = create_user('Misha')
-  lesson = Lesson.objects.create(
-      title='Test_lesson',
-      content='Test_content',
-      course=course,
-      created_by = alex
-  )
-  instructor = CourseMember.objects.create(
-      course=course,
-      user=alex,
-      role=CourseRole.INSTRUCTOR
-  )
-  student = CourseMember.objects.create(
-    course=course,
-    user=misha,
-    role=CourseRole.STUDENT
-  )
+
+  instructor = create_instructor(alex, course)
+  student = create_student(misha, course)
 
   url = f'/api/lessons/{lesson.id}/ask/'
   client = create_api_client(misha)
@@ -73,7 +47,7 @@ def test_quetion_without_text(create_user, create_api_client,  monkeypatch, cour
 
 
 @pytest.mark.django_db
-def test_user_not_course_member(create_user, create_api_client,  monkeypatch, course):
+def test_user_not_course_member(create_user, create_api_client,  monkeypatch, course, create_instructor, lesson):
   """
     Пользователь не участник курса
   """
@@ -82,17 +56,8 @@ def test_user_not_course_member(create_user, create_api_client,  monkeypatch, co
 
   alex = create_user('Alex')
   misha = create_user('Misha')
-  lesson = Lesson.objects.create(
-      title='Test_lesson',
-      content='Test_content',
-      course=course,
-      created_by = alex
-  )
-  instructor = CourseMember.objects.create(
-      course=course,
-      user=alex,
-      role=CourseRole.INSTRUCTOR
-  )
+  
+  instructor = create_instructor(alex, course)
 
   url = f'/api/lessons/{lesson.id}/ask/'
   client = create_api_client(misha)

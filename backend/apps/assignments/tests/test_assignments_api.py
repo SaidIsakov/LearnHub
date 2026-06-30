@@ -5,17 +5,13 @@ from rest_framework import status
 from apps.assignments.models import Assignment
 
 @pytest.mark.django_db
-def test_instructor_can_create_assignment(create_user, course, create_api_client):
+def test_instructor_can_create_assignment(create_user, course, create_api_client, create_instructor, lesson):
   """
     Инструктор может создать дз
   """
   alex = create_user('Alex')
-  instructor = CourseMember.objects.create(
-    user=alex,
-    course=course,
-    role=CourseRole.INSTRUCTOR
-  )
-  lesson = Lesson.objects.create(course=course, created_by=alex, title='Test Lesson')
+
+  instructor = create_instructor(alex, course)
 
   client = create_api_client(alex)
 
@@ -26,29 +22,15 @@ def test_instructor_can_create_assignment(create_user, course, create_api_client
   assert response.status_code == status.HTTP_201_CREATED
 
 @pytest.mark.django_db
-def test_student_can_submit_work(create_user, create_api_client, course):
+def test_student_can_submit_work(create_user, create_api_client, course, create_student, create_instructor, lesson, assignment):
   """
     Студент сдаёт работу
   """
   misha = create_user('Misha')
   alex = create_user('Alex')
 
-  student = CourseMember.objects.create(
-    user=misha,
-    course=course,
-    role=CourseRole.STUDENT
-  )
-
-
-  instructor = CourseMember.objects.create(
-    user=alex,
-    course=course,
-    role=CourseRole.INSTRUCTOR
-  )
-
-  lesson = Lesson.objects.create(course=course, created_by=alex, title='Test Lesson')
-
-  assignment = Assignment.objects.create(lesson=lesson, title='Create Models', created_by=alex)
+  student = create_student(misha, course)
+  instructor = create_instructor(alex, course)
 
   client = create_api_client(misha)
   url = '/api/submissions/'
@@ -58,25 +40,15 @@ def test_student_can_submit_work(create_user, create_api_client, course):
   assert response.status_code == status.HTTP_201_CREATED
 
 @pytest.mark.django_db
-def test_student_cannot_create_assignment(create_user, create_api_client, course):
+def test_student_cannot_create_assignment(create_user, create_api_client, course, create_instructor, create_student, lesson):
   """
     Студент не может создать дз
   """
   misha = create_user('Misha')
   alex = create_user('Alex')
 
-  instructor = CourseMember.objects.create(
-    user=alex,
-    course=course,
-    role=CourseRole.INSTRUCTOR
-  )
-
-  student = CourseMember.objects.create(
-    user=misha,
-    course=course,
-    role=CourseRole.STUDENT
-  )
-  lesson = Lesson.objects.create(course=course, created_by=alex, title='Test Lesson')
+  instructor = create_instructor(alex, course)
+  student = create_student(misha, course)
 
   client = create_api_client(misha)
 

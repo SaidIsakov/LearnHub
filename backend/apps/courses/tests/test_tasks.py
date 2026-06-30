@@ -7,9 +7,8 @@ from django.utils import timezone
 
 
 
-
 @pytest.mark.django_db
-def test_notify_new_student(user, course, create_user, monkeypatch):
+def test_notify_new_student(user, course, create_user, monkeypatch, create_student, create_instructor):
   """
     Проверяем что задача notify_new_student
     выполняется без ошибок
@@ -20,23 +19,16 @@ def test_notify_new_student(user, course, create_user, monkeypatch):
   misha = create_user('Misha')
   alex = create_user('Alex')
 
-  student = CourseMember.objects.create(
-    course=course,
-    user=misha,
-    role=CourseRole.STUDENT
-  )
-  instructor = CourseMember.objects.create(
-    course=course,
-    user=alex,
-    role=CourseRole.INSTRUCTOR
-  )
+  student = create_student(misha, course)
+
+  instructor = create_instructor(alex, course)
 
   result = notify_new_student.delay(course.id, misha.id)
   assert result.successful() == True
 
 
 @pytest.mark.django_db
-def test_remind_about_deadline(create_user, course, monkeypatch):
+def test_remind_about_deadline(create_user, course, monkeypatch, create_student, create_instructor, lesson):
   """
     Проверяем что задача remind_about_deadline
     находит задания с дедлайном и отправляет напоминания
@@ -46,21 +38,10 @@ def test_remind_about_deadline(create_user, course, monkeypatch):
 
   alex = create_user('Alex')
   misha = create_user('Misha')
-  instructor = CourseMember.objects.create(
-    course=course,
-    user=alex,
-    role=CourseRole.INSTRUCTOR
-  )
-  student = CourseMember.objects.create(
-    course=course,
-    user=misha,
-    role=CourseRole.STUDENT
-  )
-  lesson = Lesson.objects.create(
-    course=course,
-    title = 'Test Task',
-    created_by=alex,
-  )
+
+  instructor = create_instructor(alex, course)
+  student = create_student(misha, course)
+
   assigment = Assignment.objects.create(
     lesson=lesson,
     deadline=timezone.now() + timedelta(hours=23),

@@ -4,18 +4,14 @@ from rest_framework import status
 
 
 @pytest.mark.django_db
-def test_lesson_create(create_user, course, create_api_client):
+def test_lesson_create(create_user, course, create_api_client, create_teach_assist):
   """
     Создание занятия
   """
   url = '/api/lessons/'
   misha = create_user('misha')
 
-  member = CourseMember.objects.create(
-      user=misha,
-      course=course,
-      role=CourseRole.TEACHING_ASSISTANT
-  )
+  teach_assist = create_teach_assist(misha, course)
 
   data = {
     'course': course.id,
@@ -32,25 +28,14 @@ def test_lesson_create(create_user, course, create_api_client):
   assert response.data['course'] == course.id
 
 
-def test_lesson_list(create_api_client, course, create_user):
+def test_lesson_list(create_api_client, course, create_user, create_student, lesson):
   """
     Получаем занятия
   """
   url = '/api/lessons/'
   misha = create_user('misha')
 
-  member = CourseMember.objects.create(
-      user=misha,
-      course=course,
-      role=CourseRole.STUDENT
-  )
-
-  lesson = Lesson.objects.create(
-      course = course,
-      title = 'Test_lesson',
-      content='Test_content',
-      created_by=misha
-  )
+  student = create_student(misha, course)
 
   client = create_api_client(misha)
   response = client.get(url, format='json')

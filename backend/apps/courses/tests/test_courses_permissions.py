@@ -5,17 +5,14 @@ from rest_framework import status
 
 
 @pytest.mark.django_db
-def test_student_cannot_update_course(course, create_user, create_api_client):
+def test_student_cannot_update_course(course, create_user, create_api_client, create_student):
   """
     Студент не может обновлять курс
   """
   misha = create_user('Misha')
 
-  stud = CourseMember.objects.create(
-    user=misha,
-    course=course,
-    role=CourseRole.STUDENT
-  )
+  student = create_student(misha, course)
+
   client = create_api_client(misha)
   url = f'/api/courses/{course.id}/'
 
@@ -25,17 +22,13 @@ def test_student_cannot_update_course(course, create_user, create_api_client):
 
 
 @pytest.mark.django_db
-def test_instructor_can_update_course(course, create_api_client, create_user):
+def test_instructor_can_update_course(course, create_api_client, create_user, create_instructor):
   """
     Инструктор может редактировать
   """
   alex = create_user('Alex')
 
-  instructor = CourseMember.objects.create(
-    user=alex,
-    course=course,
-    role=CourseRole.INSTRUCTOR
-  )
+  instructor = create_instructor(alex, course)
 
   url = f'/api/courses/{course.id}/'
 
@@ -47,17 +40,13 @@ def test_instructor_can_update_course(course, create_api_client, create_user):
 
 
 @pytest.mark.django_db
-def test_observer_can_see_course(course, create_api_client, create_user):
+def test_observer_can_see_course(course, create_api_client, create_user, create_observer):
   """
     Наблюдатель может видеть курс
   """
   li = create_user('Li')
 
-  observer = CourseMember.objects.create(
-    user=li,
-    course=course,
-    role=CourseRole.OBSERVER
-  )
+  observer = create_observer(li, course)
 
   url = f'/api/courses/{course.id}/'
 

@@ -3,17 +3,13 @@ from apps.courses.models import Course, Lesson, CourseMember, CourseRole
 from rest_framework import status
 
 @pytest.mark.django_db
-def test_instructor_can_add_member(create_user, create_api_client, course):
+def test_instructor_can_add_member(create_user, create_api_client, course, create_instructor):
   """
     Инструктор может добавить участника
   """
   alex = create_user('Alex')
 
-  instructor = CourseMember.objects.create(
-    user=alex,
-    course=course,
-    role=CourseRole.INSTRUCTOR
-  )
+  instructor = create_instructor(alex, course)
 
   misha = create_user('Misha')
   url = '/api/members/'
@@ -31,28 +27,20 @@ def test_instructor_can_add_member(create_user, create_api_client, course):
   assert response.status_code == status.HTTP_201_CREATED
 
 @pytest.mark.django_db
-def test_instructor_can_remove_member(course, create_api_client, create_user):
+def test_instructor_can_remove_member(course, create_api_client, create_user, create_student, create_instructor):
   """
     Инструктор может удалить участника
   """
   alex = create_user('Alex')
 
-  instructor = CourseMember.objects.create(
-    user=alex,
-    course=course,
-    role=CourseRole.INSTRUCTOR
-  )
+  instructor = create_instructor(alex, course)
 
   misha = create_user('Misha')
 
-  member = CourseMember.objects.create(
-    user=misha,
-    course=course,
-    role=CourseRole.STUDENT
-  )
+  student = create_student(misha, course)
 
   client = create_api_client(alex)
-  url = f'/api/members/{member.id}/'
+  url = f'/api/members/{student.id}/'
 
   response = client.delete(url)
 
