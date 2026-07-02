@@ -1,6 +1,6 @@
 import pytest
 from apps.courses.models import Lesson, CourseMember, CourseRole
-from apps.courses import ai_assistant
+from apps.courses.ai import ai_assistant
 from rest_framework import status
 
 
@@ -56,7 +56,7 @@ def test_user_not_course_member(create_user, create_api_client,  monkeypatch, co
 
   alex = create_user('Alex')
   misha = create_user('Misha')
-  
+
   instructor = create_instructor(alex, course)
 
   url = f'/api/lessons/{lesson.id}/ask/'
