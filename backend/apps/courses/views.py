@@ -14,7 +14,7 @@ from django.core.cache import cache
 from rest_framework.response import Response
 from apps.courses.cache import invalidate_courses_cache, invalidate_lessons_cache
 from rest_framework.decorators import action
-from apps.courses.ai_assistant import ask_ai_about_lesson
+from apps.courses.ai.ai_assistant import ask_ai_about_lesson
 
 
 @extend_schema_view(
