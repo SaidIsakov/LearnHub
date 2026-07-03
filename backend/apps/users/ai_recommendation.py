@@ -1,10 +1,11 @@
-from openai import OpenAI
 from decouple import config
 import json
+from .exceptions import AIServiceUnavailable, AIInvalidResponse
+import openai
 
 def ai_give_recommendations(context: dict) -> dict:
 
-  client = OpenAI(api_key=config('OPENAI_API_KEY'))
+  client = openai.OpenAI(api_key=config('OPENAI_API_KEY'))
 
   prompt = f"""
     Ты персональный наставник LearnHub.
@@ -24,13 +25,19 @@ def ai_give_recommendations(context: dict) -> dict:
     }}
     """
 
-  response = client.chat.completions.create(
-    model="gpt-5.4-mini",
-    messages=[
-      {"role": "user", "content": prompt}
-    ]
-  )
+  try:
+    response = client.chat.completions.create(
+      model="gpt-5.4-mini",
+      messages=[
+        {"role": "user", "content": prompt}
+      ]
+    )
+  except openai.APIError:
+    raise AIServiceUnavailable()
 
   content = response.choices[0].message.content
 
-  return json.loads(content)
+  try:
+    return json.loads(content)
+  except json.JSONDecodeError:
+    raise AIInvalidResponse()

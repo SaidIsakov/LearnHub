@@ -5,7 +5,7 @@ from apps.courses.urls import router as course_router
 from apps.assignments.urls import router as assignment_router
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from .tokens import TaggedTokenObtainPairView, TaggedTokenRefreshView
-from apps.users.views import ListRecommendation
+from apps.users.views import RecommendationAPIView
 
 
 router = routers.DefaultRouter()
@@ -29,5 +29,5 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # User
-    path('users/recommendations/', ListRecommendation.as_view(), name='recommendations')
+    path('users/recommendations/', RecommendationAPIView.as_view(), name='recommendations')
 ]
