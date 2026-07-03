@@ -1,5 +1,9 @@
 from django.db.models import Sum
 from apps.assignments.models import Assignment, AssignmentStatus, Submission
+from apps.users.ai_recommendation import ai_give_recommendations
+from apps.users.models import AIRecommendation
+
+
 
 def get_recommendation_context(user) -> dict:
   """
@@ -63,3 +67,24 @@ def get_pending_assignments_count(user):
             submissions__student=user,
             submissions__status = AssignmentStatus.PENDING
          ).count()
+
+
+class RecommendationService:
+
+  @staticmethod
+  def generate(user):
+    context = get_recommendation_context(user)
+    ai_recommendations = ai_give_recommendations(context)
+
+    AIRecommendation.objects.update_or_create(
+        user = user,
+        defaults = {
+          "summary": ai_recommendations['summary'],
+          "strengths": ai_recommendations['strengths'],
+          "weaknesses": ai_recommendations['weaknesses'],
+          "next_goal":  ai_recommendations['next_goal'],
+          "motivation":  ai_recommendations['motivation']
+        }
+      )
+
+    return ai_recommendations
