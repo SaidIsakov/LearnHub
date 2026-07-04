@@ -1,4 +1,4 @@
-from .ai.ai_assistant import ask_ai_about_lesson
+from apps.courses.ai.ai_assistant import ask_ai_about_lesson
 from .models import ChatMessage
 from rest_framework.exceptions import ValidationError
 
@@ -11,7 +11,9 @@ class LessonAIService:
       Задаем вопрос AI и сохраняем ответ
     """
     if not question:
-      raise ValidationError('Question is required')
+      raise ValidationError({
+          "question": ["Question is required."]
+      })
 
     answer = ask_ai_about_lesson(lesson.content, question)
 

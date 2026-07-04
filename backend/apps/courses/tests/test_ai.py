@@ -9,7 +9,7 @@ def test_ai_answer_quetion(create_user, create_api_client,  monkeypatch, course,
   """
     Успешный вопрос к AI
   """
-  monkeypatch.setattr('apps.courses.views.ask_ai_about_lesson', lambda lesson_content, question : 'answer')
+  monkeypatch.setattr('apps.courses.services.ask_ai_about_lesson', lambda lesson_content, question : 'answer')
 
   alex = create_user('Alex')
   misha = create_user('Misha')
@@ -30,7 +30,7 @@ def test_quetion_without_text(create_user, create_api_client,  monkeypatch, cour
     Вопрос без текста (валидация)
   """
 
-  monkeypatch.setattr('apps.courses.views.ask_ai_about_lesson', lambda lesson_content, question : 'answer')
+  monkeypatch.setattr('apps.courses.services.ask_ai_about_lesson', lambda lesson_content, question : 'answer')
 
   alex = create_user('Alex')
   misha = create_user('Misha')
@@ -52,7 +52,7 @@ def test_user_not_course_member(create_user, create_api_client,  monkeypatch, co
     Пользователь не участник курса
   """
 
-  monkeypatch.setattr('apps.courses.views.ask_ai_about_lesson', lambda lesson_content, question : 'answer')
+  monkeypatch.setattr('apps.courses.services.ask_ai_about_lesson', lambda lesson_content, question : 'answer')
 
   alex = create_user('Alex')
   misha = create_user('Misha')
