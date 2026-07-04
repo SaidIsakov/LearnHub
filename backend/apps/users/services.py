@@ -3,7 +3,8 @@ from apps.assignments.models import Assignment, AssignmentStatus, Submission
 from apps.users.ai_recommendation import ai_give_recommendations
 from apps.users.models import AIRecommendation
 from django.db.models import Count, Q, Subquery, OuterRef
-from apps.courses.models import CourseMember
+from apps.courses.models import CourseMember, ChatMessage
+
 
 
 def get_recommendation_context(user) -> dict:
@@ -14,7 +15,10 @@ def get_recommendation_context(user) -> dict:
   return {
     "courses": get_courses_stats(user),
     **get_user_general_stats(user),
-    "pending_assignments": get_pending_assignments_count(user)
+    "pending_assignments": get_pending_assignments_count(user),
+    "completion_rate": get_completion_rate(user),
+    "recent_questions": get_recent_questions(user),
+    "last_grades": get_last_grades(user)
   }
 
 
@@ -70,7 +74,7 @@ def get_courses_stats(user):
   return courses_data
 
 
-def get_pending_assignments_count(user):
+def get_pending_assignments_count(user) -> int:
   """
   Считает задания со статусом в процессе
   """
@@ -79,6 +83,40 @@ def get_pending_assignments_count(user):
             submissions__status = AssignmentStatus.PENDING
          ).count()
 
+
+def get_completion_rate(user) -> int:
+  """
+    Считает процент завершения курса
+  """
+  stats = get_courses_stats(user)
+  submitted = sum(course['assignments_submitted'] for course in stats)
+  total = sum(course["assignments_total"] for course in stats)
+
+  if total == 0:
+    return 0
+
+  return round(submitted / total * 100)
+
+
+def get_recent_questions(user) -> list:
+  """
+    Получаем последние 5 вопросов к AI
+  """
+  return list(
+    ChatMessage.objects.filter(
+    user=user
+  ).order_by('-created_at')[:5].values_list('question', flat=True)
+  )
+
+def get_last_grades(user) -> list:
+  """
+    Последние оценки
+  """
+  return list(
+    user.submissions.filter(
+    status=AssignmentStatus.SUBMITTED
+  ).order_by('-submitted_at')[:5].values('assignment__title', 'grade')
+  )
 
 class RecommendationService:
 

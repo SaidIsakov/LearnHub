@@ -19,21 +19,19 @@ class AIRecommendation(models.Model):
       on_delete=models.CASCADE,
       related_name='recommendations'
   )
-  summary = models.CharField(max_length=200)
+  summary = models.CharField()
   strengths = ArrayField(
       models.CharField(
-          max_length=100,
           default=list
       )
   )
   weaknesses = ArrayField(
       models.CharField(
-          max_length=100,
           default=list
       )
   )
-  next_goal = models.TextField(max_length=200)
-  motivation = models.TextField(max_length=200)
+  next_goal = models.TextField()
+  motivation = models.TextField()
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
 
