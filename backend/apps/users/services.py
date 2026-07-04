@@ -3,7 +3,7 @@ from apps.assignments.models import Assignment, AssignmentStatus, Submission
 from apps.users.ai_recommendation import ai_give_recommendations
 from apps.users.models import AIRecommendation
 from django.db.models import Count, Q, Subquery, OuterRef
-from apps.courses.models import Course
+from apps.courses.models import CourseMember
 
 
 def get_recommendation_context(user) -> dict:
@@ -42,23 +42,22 @@ def get_courses_stats(user):
   """
   courses_data = []
 
-  assignments_submitted_subquery = Submission.objects.filter(
-    student=OuterRef('user'),
-    status=AssignmentStatus.SUBMITTED,
-    assignment__lesson__course=OuterRef('course')
-  ).values('assignment__lesson__course').annotate(count=Count('id')).values('count')
-
   memberships = user.course_memberships.select_related("course").annotate(
-      lessons_total=Count("course__lessons"),
+      lessons_total=Count("course__lessons", distinct=True),
       assignments_total=Count("course__lessons__assignments",
       filter=Q(
         course__lessons__is_published=True,
         course__lessons__course__is_published=True
-      )
-    ),
-    assignments_submitted = Subquery(assignments_submitted_subquery)
+        ),
+        distinct=True
+      ),
+      assignments_submitted=Count("course__lessons__assignments__submissions", filter=Q(
+        course__lessons__assignments__submissions__status=AssignmentStatus.SUBMITTED,
+        course__lessons__assignments__submissions__student=user
+      ),
+      distinct=True
+    )
   )
-
 
   for membership in memberships:
     course = membership.course
