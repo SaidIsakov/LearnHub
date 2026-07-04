@@ -2,7 +2,8 @@ from django.db.models import Sum
 from apps.assignments.models import Assignment, AssignmentStatus, Submission
 from apps.users.ai_recommendation import ai_give_recommendations
 from apps.users.models import AIRecommendation
-
+from django.db.models import Count, Q, Subquery, OuterRef
+from apps.courses.models import Course
 
 
 def get_recommendation_context(user) -> dict:
@@ -41,20 +42,31 @@ def get_courses_stats(user):
   """
   courses_data = []
 
-  for membership in user.course_memberships.all():
+  assignments_submitted_subquery = Submission.objects.filter(
+    student=OuterRef('user'),
+    status=AssignmentStatus.SUBMITTED,
+    assignment__lesson__course=OuterRef('course')
+  ).values('assignment__lesson__course').annotate(count=Count('id')).values('count')
+
+  memberships = user.course_memberships.select_related("course").annotate(
+      lessons_total=Count("course__lessons"),
+      assignments_total=Count("course__lessons__assignments",
+      filter=Q(
+        course__lessons__is_published=True,
+        course__lessons__course__is_published=True
+      )
+    ),
+    assignments_submitted = Subquery(assignments_submitted_subquery)
+  )
+
+
+  for membership in memberships:
     course = membership.course
     courses_data.append({
       "title": course.title,
-      "lessons_total": course.lessons.count(),
-      "assignments_submitted": user.submissions.filter(
-          status=AssignmentStatus.SUBMITTED,
-          assignment__lesson__course=course
-          ).count(),
-      "assignments_total": Assignment.objects.filter(
-          lesson__course=course,
-          lesson__is_published=True,
-          lesson__course__is_published=True
-        ).count(),
+      "lessons_total": membership.lessons_total,
+      "assignments_submitted": membership.assignments_submitted or 0,
+      "assignments_total": membership.assignments_total
     })
   return courses_data
 
