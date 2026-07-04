@@ -189,7 +189,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
     'название-задачи': {
         'task': 'apps.courses.tasks.remind_about_deadline',
-        'schedule': crontab(minute=2)
+        'schedule': crontab(hour=9, minute=0)
     }
 }
 

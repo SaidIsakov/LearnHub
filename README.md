@@ -5,26 +5,75 @@
 [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Django Version](https://img.shields.io/badge/django-5.0+-green.svg)](https://www.djangoproject.com/)
 [![DRF Version](https://img.shields.io/badge/DRF-3.14+-orange.svg)](https://www.django-rest-framework.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 ## 📖 О проекте
 
-**LearnHub** — это RESTful API для управления онлайн-курсами, построенное на Django REST Framework. Система предоставляет гибкую ролевую модель доступа, позволяющую эффективно организовать процесс обучения для преподавателей, ассистентов и студентов.
+**LearnHub** — это RESTful API образовательной платформы, которая сочетает классические возможности LMS (курсы, уроки, задания и роли пользователей) с AI-функциями. Студенты могут задавать вопросы по материалу уроков и получать персональные рекомендации, сформированные на основе их прогресса, оценок и активности.
 
 ### Основные возможности
+- **JWT Authentication** - Авторизация с помощью токенов
+- **Управление курсами** - создание, редактирование, публикация курсов
+- **Ролевая система** - INSTRUCTOR, TEACHING_ASSISTANT, STUDENT, OBSERVER
+- **Управление уроками** - структурированные материалы курса
+- **Домашние задания** - создание, сдача и проверка работ
+- **Тесты и квизы** - автоматизированная проверка знаний
+- **Уведомления** - интеграция с Telegram для напоминаний
+- **Аналитика** - статистика прогресса студентов
 
-- ✅ **Управление курсами** - создание, редактирование, публикация курсов
-- ✅ **Ролевая система** - INSTRUCTOR, TEACHING_ASSISTANT, STUDENT, OBSERVER
-- ✅ **Управление уроками** - структурированные материалы курса
-- 🚧 **Домашние задания** - создание, сдача и проверка работ *(в разработке)*
-- 🚧 **Тесты и квизы** - автоматизированная проверка знаний *(в разработке)*
-- 🚧 **Уведомления** - интеграция с Telegram для напоминаний *(в разработке)*
-- 🚧 **Аналитика** - статистика прогресса студентов *(в разработке)*
+---
+## 🤖 AI Возможности
+LearnHub интегрирует OpenAI для предоставления персонализированной помощи в обучении в качестве универсального чат-бота.
+
+### 📚 AI Помощник в обучении
+
+Студент может задать вопрос по уроку
+
+AI Ассистент:
+- Отвечает, используя только content урока;
+- Не выдумывает информацию;
+
+### 📈 AI Learning Recommendations
+AI Ассистент анализирует прогресс обучения студента и дает рекомендации
+
+AI Использует:
+- course progress # Общий прогресс по курсу
+- pending_assignments # Количество выполняемых дз
+- completion_rate # Процент завершения курса
+- recent_questions # Последние 5 вопросов студента по занятиям
+- last_grades # Последние 5 отметок студента
+
+Базируясь этой информацией AI генерирует ответ:
+- summary # Анализ успеваемости: что хорошо, где проблемы
+- strengths # Конкретное достижение с цифрами
+- weaknesses # Конкретная проблема с объяснением почему это важно
+- next_goal # Конкретная измеримая цель на неделю
+- motivation # Персональное мотивирующее сообщение на основе реальных достижений
 
 ---
 
+## 📸 Скриншоты
+
+### AI-рекомендации
+![AI Recommendations](docs/screenshots/ai-recommendations-response.png)
+
+---
+
+### AI-помощник по урокам
+![AI Assistant](docs/screenshots/ai-assistant-chat.png)
+
+---
+
+## 🔐 Authentication
+API использует JWT-аутентификацию.
+
+Основные эндпоинты:
+
+- POST /api/auth/token/
+- POST /api/auth/token/refresh/
+
+---
 ## 🏗️ Технологический стек
 
 ### Backend
@@ -36,9 +85,11 @@
 - **Celery** - асинхронные задачи
 - **pytest** - тестирование
 
+
 ### Интеграции
 - **Telegram Bot API** - уведомления пользователям
 - **drf-spectacular** - автоматическая документация API (OpenAPI/Swagger)
+- **openai** - Интеграция AI
 
 ---
 
@@ -46,7 +97,7 @@
 
 - Python 3.11 или выше
 - PostgreSQL 14+
-- Redis 6+
+- Redis 5+
 - pip или uv и virtualenv
 
 ---
@@ -57,7 +108,7 @@
 
 ```bash
 git clone https://github.com/SaidIsakov/LearnHub.git
-cd Learnhub
+cd LearnHub
 ```
 
 ### 2. Создание виртуального окружения
@@ -95,6 +146,9 @@ DB_PORT=5432
 SOCIAL_AUTH_TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
+
+# OpenAI
+OPENAI_API_KEY=your_openai_api_key
 ```
 
 ### 5. Применение миграций
@@ -148,12 +202,6 @@ celery -A conf beat -l info
 pytest
 ```
 
-Запуск с покрытием кода:
-
-```bash
-pytest --cov=apps --cov-report=html
-```
-
 Запуск конкретного модуля:
 
 ```bash
@@ -169,13 +217,15 @@ learnhub/
 ├── backend/
 │   ├── apps/
 │   │   ├── courses/          # Управление курсами
-│   │   │   ├── models.py     # Course, CourseMember, Lesson
+│   │   │   ├── models.py     # Course, CourseMember, Lesson, CourseRole, ChatMessage
 │   │   │   ├── views.py      # ViewSets для API
 │   │   │   ├── serializers.py
 │   │   │   ├── permissions.py # Права доступа
-│   │   │   └── tests/
+│   │   │   ├── tests/
+│   │   │   ├── services.py # бизнес-логика
+│   │   │   ├── tasks.py # асинхронные задачи
+│   │   │   └── telegram.py # интеграция с телеграм
 │   │   ├── assignments/      # Домашние задания (в разработке)
-│   │   ├── quizzes/          # Тесты и квизы (в разработке)
 │   │   └── users/            # Пользователи
 │   ├── conf/                 # Настройки проекта
 │   │   ├── settings.py
@@ -207,51 +257,11 @@ learnhub/
 | Просмотр оценок (своих) | ✅ | ✅ | ✅ | ❌ |
 | Просмотр оценок (всех) | ✅ | ✅ | ❌ | ❌ |
 
----
-
-## 🛣️ Roadmap
-
-### 🚧 В разработке (v0.2)
-- [x] Базовая структура проекта
-- [x] Модели Course, CourseMember, Lesson
-- [x] CRUD API для курсов
-- [x] Ролевая система доступа
-- [x] Базовые тесты
-
-### 🚧 В разработке (v0.2)
-- [ ] Модуль домашних заданий (Assignment, Submission)
-- [ ] Система оценивания
-- [ ] Дедлайны и напоминания
-- [ ] Telegram-уведомления
-
-### 📅 Планируется (v0.3+)
-- [ ] Тесты и квизы с автопроверкой
-- [ ] Прогресс студента по курсу
-- [ ] Сертификаты о прохождении
-- [ ] Комментарии к урокам
-- [ ] Загрузка файлов (презентации, видео)
-- [ ] Аналитика и отчёты
-- [ ] GraphQL API (опционально)
-
-
----
-
 ## 👤 Автор
 
 **Said**
 
 - GitHub: [@SaidIsakov](https://github.com/SaidIsakov)
 - Email: pm5581287@gmail.com
-
----
-
-
-## 🙏 Благодарности
-
-- Вдохновлён реальными LMS-платформами (Moodle, Canvas)
-- Основан на best practices Django REST Framework
-- Использует паттерны из Django Task Manager
-
----
 
 **⭐ Если проект был полезен, поставьте звёздочку!**
