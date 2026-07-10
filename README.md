@@ -188,9 +188,9 @@ celery -A conf beat -l info
 
 После запуска сервера документация доступна по адресам:
 
-- **Swagger UI**: http://localhost:8000/api/schema/swagger-ui/
-- **ReDoc**: http://localhost:8000/api/schema/redoc/
-- **OpenAPI Schema**: http://localhost:8000/api/schema/
+- **Swagger UI**: http://localhost:8010/api/schema/swagger-ui/
+- **ReDoc**: http://localhost:8010/api/schema/redoc/
+- **OpenAPI Schema**: http://localhost:8010/api/schema/
 
 ---
 
