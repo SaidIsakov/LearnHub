@@ -170,7 +170,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-API будет доступно по адресу: `http://localhost:8000/api/`
+API будет доступно по адресу: `http://localhost:8010/api/`
 
 ### 8. Запуск Celery (опционально)
 
