@@ -40,7 +40,7 @@ def get_user_general_stats(user) -> dict:
     }
 
 
-def get_courses_stats(user):
+def get_courses_stats(user) -> list:
   """
   Собирает статистику по курсам
   """

@@ -26,7 +26,7 @@ def test_notify_new_student(user, course, create_user, monkeypatch, create_stude
   result = notify_new_student.delay(course.id, misha.id)
   assert result.successful() == True
 
-
+  
 @pytest.mark.django_db
 def test_remind_about_deadline(create_user, course, monkeypatch, create_student, create_instructor, lesson):
   """
