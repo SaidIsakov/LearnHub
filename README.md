@@ -18,7 +18,7 @@
 - **Ролевая система** - INSTRUCTOR, TEACHING_ASSISTANT, STUDENT, OBSERVER
 - **Управление уроками** - структурированные материалы курса
 - **Домашние задания** - создание, сдача и проверка работ
-- **Тесты и квизы** - автоматизированная проверка знаний
+- **Тесты** - автоматизированное тестирование
 - **Уведомления** - интеграция с Telegram для напоминаний
 - **Аналитика** - статистика прогресса студентов
 
@@ -170,7 +170,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-API будет доступно по адресу: `http://localhost:8000/api/`
+API будет доступно по адресу: `http://localhost:8010/api/`
 
 ### 8. Запуск Celery (опционально)
 
@@ -188,9 +188,9 @@ celery -A conf beat -l info
 
 После запуска сервера документация доступна по адресам:
 
-- **Swagger UI**: http://localhost:8000/api/schema/swagger-ui/
-- **ReDoc**: http://localhost:8000/api/schema/redoc/
-- **OpenAPI Schema**: http://localhost:8000/api/schema/
+- **Swagger UI**: http://localhost:8010/api/schema/swagger-ui/
+- **ReDoc**: http://localhost:8010/api/schema/redoc/
+- **OpenAPI Schema**: http://localhost:8010/api/schema/
 
 ---
 
